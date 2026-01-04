@@ -3,10 +3,13 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { Cell, HintResponse } from "../types";
 
 export const getSmartHint = async (board: Cell[][], solution: number[][], customApiKey?: string): Promise<HintResponse | null> => {
-  const apiKey = customApiKey || process.env.API_KEY;
+  // Em ambientes de produção/Vite, process.env pode não estar definido.
+  // Usamos uma verificação segura para evitar crash.
+  const envKey = typeof process !== 'undefined' && process.env ? process.env.API_KEY : undefined;
+  const apiKey = customApiKey || envKey;
   
   if (!apiKey) {
-    console.error("API Key não configurada.");
+    console.warn("API Key não fornecida pelo usuário ou ambiente.");
     return null;
   }
 
@@ -46,8 +49,7 @@ export const getSmartHint = async (board: Cell[][], solution: number[][], custom
     const text = response.text;
     if (!text) return null;
 
-    const hint = JSON.parse(text) as HintResponse;
-    return hint;
+    return JSON.parse(text) as HintResponse;
   } catch (error) {
     console.error("Erro ao obter dica da IA:", error);
     return null;
