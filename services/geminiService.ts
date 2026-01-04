@@ -43,7 +43,10 @@ export const getSmartHint = async (board: Cell[][], solution: number[][], custom
       }
     });
 
-    const hint = JSON.parse(response.text);
+    const text = response.text;
+    if (!text) return null;
+
+    const hint = JSON.parse(text) as HintResponse;
     return hint;
   } catch (error) {
     console.error("Erro ao obter dica da IA:", error);
